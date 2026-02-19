@@ -1,15 +1,14 @@
-# Frontend - No Docker build needed for CI
-# Just verify dependencies install correctly
-
-FROM node:18-slim
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
 
-RUN npm ci --prefer-offline || npm install --legacy-peer-deps
+COPY . .
+RUN npm run build
 
-# Verify build can run (without actually building to save time)
-RUN npm run build || echo "Build verification done"
-
-EXPOSE 5173
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
