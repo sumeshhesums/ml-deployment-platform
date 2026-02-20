@@ -43,6 +43,19 @@ class PredictionRequest(BaseModel):
     input_data: Any
 
 
+class BatchPredictionRequest(BaseModel):
+    inputs: List[Any] = Field(..., min_length=1, max_length=100)
+
+
+class BatchPredictionResult(BaseModel):
+    model_id: int
+    model_name: str
+    predictions: List[Any]
+    prediction_time: float
+    batch_size: int
+    timestamp: datetime
+
+
 class PredictionResponse(BaseModel):
     id: int
     model_id: int

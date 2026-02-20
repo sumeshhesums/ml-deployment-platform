@@ -5,12 +5,14 @@ from app.db.database import get_db
 from app.db.models import User, MLModel, Prediction
 from app.schemas.model import (
     MLModelCreate, MLModelResponse, MLModelUpdate,
-    PredictionRequest, PredictionResult, ModelStatsResponse, PredictionResponse
+    PredictionRequest, PredictionResult, ModelStatsResponse, PredictionResponse,
+    BatchPredictionRequest, BatchPredictionResult
 )
 from app.core.dependencies import get_current_user
 from app.core.config import settings
 from app.services.model_service import ModelService
 from typing import List
+from datetime import datetime
 import os
 import json
 
@@ -145,6 +147,42 @@ async def predict(
     model_service = ModelService(db)
     prediction = await model_service.predict(model, request.input_data, current_user.id)
     return prediction
+
+
+@router.post("/{model_id}/batch-predict", response_model=BatchPredictionResult)
+async def batch_predict(
+    model_id: int,
+    request: BatchPredictionRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(MLModel).where(
+            MLModel.id == model_id,
+            MLModel.is_active == True
+        )
+    )
+    model = result.scalar_one_or_none()
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found")
+    
+    model_service = ModelService(db)
+    all_predictions = []
+    total_time = 0.0
+    
+    for input_item in request.inputs:
+        prediction = await model_service.predict(model, input_item, current_user.id)
+        all_predictions.append(prediction.predictions)
+        total_time += prediction.prediction_time
+    
+    return BatchPredictionResult(
+        model_id=model_id,
+        model_name=model.name,
+        predictions=all_predictions,
+        prediction_time=total_time,
+        batch_size=len(request.inputs),
+        timestamp=datetime.utcnow()
+    )
 
 
 @router.get("/{model_id}/stats", response_model=ModelStatsResponse)
