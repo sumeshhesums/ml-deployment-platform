@@ -42,7 +42,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=your-super-secret-key-change-in-production-min-32-chars-long
       - DEBUG=True
-      - CORS_ORIGINS=http://localhost:5173,http://frontend:5173
+      - CORS_ORIGINS=http://localhost:80,http://frontend
     ports:
       - "8000:8000"
     depends_on:
@@ -61,9 +61,9 @@ services:
       dockerfile: Dockerfile
     container_name: mlplatform-frontend
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=/api
     ports:
-      - "5173:5173"
+      - "80:80"
     depends_on:
       - backend
     volumes:

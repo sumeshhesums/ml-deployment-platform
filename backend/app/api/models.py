@@ -135,7 +135,6 @@ async def predict(
     result = await db.execute(
         select(MLModel).where(
             MLModel.id == model_id,
-            MLModel.owner_id == current_user.id,
             MLModel.is_active == True
         )
     )

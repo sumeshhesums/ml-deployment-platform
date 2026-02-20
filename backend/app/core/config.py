@@ -9,11 +9,11 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
     
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    HOST: str = "127.0.0.1"
+    PORT: int = 9000
     
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/mlplatform"
-    DATABASE_URL_SYNC: str = "postgresql://postgres:postgres@localhost:5432/mlplatform"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./mlplatform.db"
+    DATABASE_URL_SYNC: str = "sqlite:///./mlplatform.db"
     
     SECRET_KEY: str = "your-super-secret-key-change-in-production-min-32-chars-long"
     ALGORITHM: str = "HS256"

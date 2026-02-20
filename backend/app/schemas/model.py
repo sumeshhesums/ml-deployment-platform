@@ -40,7 +40,7 @@ class MLModelResponse(MLModelBase):
 
 
 class PredictionRequest(BaseModel):
-    input_data: Dict[str, Any]
+    input_data: Any
 
 
 class PredictionResponse(BaseModel):
